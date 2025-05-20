@@ -1,64 +1,84 @@
 #include <stdio.h>
+#include <string.h>
 
-struct CartaCidade {
+typedef struct {
     char estado[50];
     int codigo;
-    char nomeCidade[100];
-    int populacao;
+    char nome[50];
+    unsigned long int populacao;
     float area;
     float pib;
-    int pontosTuristicos;
-    float densidadePopulacional;
-    float pibPerCapita;
-};
+    int pontos_turisticos;
+    float densidade_populacional;
+    float pib_per_capita;
+    float super_poder;
+} Carta;
+
+void ler_carta(Carta *carta) {
+    printf("Digite o estado: ");
+    scanf(" %[^\n]", carta->estado);
+
+    printf("Digite o código: ");
+    scanf("%d", &carta->codigo);
+
+    printf("Digite o nome: ");
+    scanf(" %[^\n]", carta->nome);
+
+    printf("Digite a população: ");
+    scanf("%lu", &carta->populacao);
+
+    printf("Digite a área (km²): ");
+    scanf("%f", &carta->area);
+
+    printf("Digite o PIB (em bilhões): ");
+    scanf("%f", &carta->pib);
+
+    printf("Digite o número de pontos turísticos: ");
+    scanf("%d", &carta->pontos_turisticos);
+
+    // Calcular densidade populacional e PIB per capita
+    carta->densidade_populacional = carta->populacao / carta->area;
+    carta->pib_per_capita = (carta->pib * 1000000000) / carta->populacao; // Convertendo PIB para reais
+}
+
+float calcular_super_poder(Carta carta) {
+    return (float)carta.populacao + carta.area + carta.pib + 
+           carta.pontos_turisticos + carta.pib_per_capita + 
+           (1.0f / carta.densidade_populacional);
+}
+
+void comparar_atributo(const char* nome, float valor1, float valor2, int menor_vence) {
+    int resultado = 0;
+    if (menor_vence) {
+        resultado = valor1 < valor2 ? 1 : 0;
+    } else {
+        resultado = valor1 > valor2 ? 1 : 0;
+    }
+    printf("%s: Carta 1 vence? %d\n", nome, resultado);
+}
 
 int main() {
-    struct CartaCidade cidade[2];
+    Carta carta1, carta2;
 
-    for (int i = 0; i < 2; i++) {
-        printf("Digite os dados da cidade %d:\n", i + 1);
+    printf("Insira os dados da Carta 1:\n");
+    ler_carta(&carta1);
 
-        printf("Estado: ");
-        scanf(" %[^\n]", cidade[i].estado);
+    printf("\nInsira os dados da Carta 2:\n");
+    ler_carta(&carta2);
 
-        printf("Codigo da carta: ");
-        scanf("%d", &cidade[i].codigo);
+    // Calcular Super Poder
+    carta1.super_poder = calcular_super_poder(carta1);
+    carta2.super_poder = calcular_super_poder(carta2);
 
-        printf("Nome da cidade: ");
-        scanf(" %[^\n]", cidade[i].nomeCidade);
-
-        printf("Populacao: ");
-        scanf("%d", &cidade[i].populacao);
-
-        printf("Area (km²): ");
-        scanf("%f", &cidade[i].area);
-
-        printf("PIB (em reais): ");
-        scanf("%f", &cidade[i].pib);
-
-        printf("Numero de pontos turisticos: ");
-        scanf("%d", &cidade[i].pontosTuristicos);
-
-        // Cálculo da densidade populacional e PIB per capita
-        cidade[i].densidadePopulacional = cidade[i].populacao / cidade[i].area;
-        cidade[i].pibPerCapita = cidade[i].pib / cidade[i].populacao;
-
-        printf("\n");
-    }
-
-    // Exibição dos dados
-    for (int i = 0; i < 2; i++) {
-        printf("\n--- Informações da Cidade %d ---\n", i + 1);
-        printf("Estado: %s\n", cidade[i].estado);
-        printf("Codigo da carta: %d\n", cidade[i].codigo);
-        printf("Nome da cidade: %s\n", cidade[i].nomeCidade);
-        printf("Populacao: %d\n", cidade[i].populacao);
-        printf("Area: %.2f km²\n", cidade[i].area);
-        printf("PIB: R$ %.2f\n", cidade[i].pib);
-        printf("Pontos turisticos: %d\n", cidade[i].pontosTuristicos);
-        printf("Densidade populacional: %.2f hab/km²\n", cidade[i].densidadePopulacional);
-        printf("PIB per capita: R$ %.2f\n", cidade[i].pibPerCapita);
-    }
+    // Comparações
+    printf("\nResultados das Comparações:\n");
+    comparar_atributo("População", (float)carta1.populacao, (float)carta2.populacao, 0);
+    comparar_atributo("Área", carta1.area, carta2.area, 0);
+    comparar_atributo("PIB", carta1.pib, carta2.pib, 0);
+    comparar_atributo("Pontos Turísticos", (float)carta1.pontos_turisticos, (float)carta2.pontos_turisticos, 0);
+    comparar_atributo("PIB per Capita", carta1.pib_per_capita, carta2.pib_per_capita, 0);
+    comparar_atributo("Densidade Populacional", carta1.densidade_populacional, carta2.densidade_populacional, 1);
+    comparar_atributo("Super Poder", carta1.super_poder, carta2.super_poder, 0);
 
     return 0;
 }
